@@ -40,7 +40,6 @@ class ApiCall {
 
         val call = service.getFile(fileId)
 
-        Log.d("Retrofit", "Request URL: ${call.request().url()}")
         call.enqueue(object: Callback<GitHubBlob> {
             override fun onResponse(
                 call: Call<GitHubBlob?>,
@@ -49,7 +48,6 @@ class ApiCall {
                 if(response.isSuccessful){
                     val blob = response.body() as GitHubBlob
                     val decoded = Base64.decode(blob.content ?: "" , Base64.DEFAULT)
-
                     callback(String(decoded))
                 }else{
                     Log.d("error" , "error in response")

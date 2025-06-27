@@ -20,4 +20,4 @@ function keyOf(tbl, value)
     return nil
 end
 
-return keyOf(candidiates , maxCandidate)
+return keyOf(candidates , maxCandidate)

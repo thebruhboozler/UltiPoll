@@ -3,6 +3,7 @@ package com.ultipoll
 import android.graphics.Color
 import android.os.Bundle
 import android.provider.CalendarContract.Colors
+import android.text.Html
 import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
@@ -90,7 +91,7 @@ class PollSetUpFragment : Fragment() {
 
         ApiCall().getFile(id){ content->
             val lines = content.split('\n')
-            Log.d("title" , lines[0])
+
             val titleRegex = Regex("""---Title:\s*(.+)""")
             val ballotTypeRegex = Regex("""---Ballot_Type:\s*(.+)""")
             val descriptionRegex = Regex("""---Description:\s*(.+)""")
@@ -100,7 +101,7 @@ class PollSetUpFragment : Fragment() {
             val description = descriptionRegex.find(lines[2])?.groupValues?.get(1) ?: ""
 
 
-            binding.method.text = title
+            binding.method.text = Html.fromHtml("<u>$title</u>", Html.FROM_HTML_MODE_LEGACY)
             binding.BallotType.text = ballotType
             binding.description.text = description
         }
