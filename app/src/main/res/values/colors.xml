@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="background_col">#f9c54e</color>
+    <color name="outline">#f9a94e</color>
+    <color name="textCol">#f76408</color>
+    <color name="passive_col">#f98339</color>
+</resources>

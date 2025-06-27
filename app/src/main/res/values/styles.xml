@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="InputLabel">
+        <item name="android:fontFamily">@font/lato_bold</item>
+        <item name="android:textColor">@color/textCol</item>
+        <item name="android:textSize">22sp</item>
+    </style>
+
+    <style name="MajorInputStyle" parent="Widget.AppCompat.TextView">
+        <item name="android:textColor">@color/textCol</item>
+        <item name="android:background">@null</item>
+        <item name="android:fontFamily">@font/lato_bold</item>
+        <item name="android:textColorHint">@color/passive_col</item>
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="btnStyle">
+        <item name="android:background">@drawable/btn_background</item>
+        <item name="android:fontFamily">@font/lato_bold</item>
+        <item name="android:textColor">@color/textCol</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+</resources>

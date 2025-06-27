@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">UltiPoll</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="set_up_poll">Set Up poll</string>
+    <string name="vote_in_poll">Vote In a Poll</string>
+    <string name="title">Title</string>
+    <string name="number_of_participants">Number of Participants:</string>
+    <string name="method">Method:</string>
+    <string name="ranked_choice">Ranked Choice</string>
+    <string name="ballot_type">Ballot Type:</string>
+    <string name="description">Description</string>
+    <string name="options">Options</string>
+    <string name="input_an_option">Input an Option</string>
+    <string name="participate">Participate</string>
+    <string name="finish">Finish</string>
+    <string name="pick_a_method">Pick a Method</string>
+</resources>

@@ -1,0 +1,17 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:inset="3dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent"/>
+            <stroke android:width="6dp" android:color="@color/background_col"/>
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent"/>
+            <stroke android:width="3dp" android:color="@color/black"/>
+        </shape>
+    </item>
+
+
+</layer-list>
