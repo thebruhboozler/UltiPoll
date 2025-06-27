@@ -3,6 +3,7 @@ package com.ultipoll
 import android.graphics.Color
 import android.os.Bundle
 import android.provider.CalendarContract.Colors
+import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import androidx.fragment.app.Fragment
@@ -14,6 +15,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
+import androidx.fragment.app.FragmentTransaction
 import com.ultipoll.databinding.FragmentPollSetUpBinding
 import com.ultipoll.databinding.FragmentSplashBinding
 
@@ -35,8 +37,6 @@ class PollSetUpFragment : Fragment() {
         binding.AddOptionBtn.setOnClickListener{
             val option = binding.Option.text.toString()
             if(option.isBlank()) return@setOnClickListener;
-
-
             val latoTf = ResourcesCompat.getFont(requireContext(), R.font.lato_bold)
             val textView = TextView(requireContext()).apply {
                 text = option
@@ -49,7 +49,6 @@ class PollSetUpFragment : Fragment() {
                     1f
                 )
             }
-
             val imgBtn = ImageButton(requireContext()).apply {
                 setImageResource(R.drawable.icon_minus)
                 background=null
@@ -73,7 +72,6 @@ class PollSetUpFragment : Fragment() {
             }
             itemLayout.addView(textView)
             itemLayout.addView(imgBtn)
-
             binding.OptionsMenu.addView(itemLayout)
             imgBtn.setOnClickListener{
                 binding.OptionsMenu.removeView(itemLayout)
@@ -81,7 +79,31 @@ class PollSetUpFragment : Fragment() {
             binding.Option.text.clear()
         }
         binding.method.setOnClickListener{
-            parentFragmentManager.beginTransaction().replace(R.id.FrameLayout,MethodPickerFragment()).commit()
+            val transition = parentFragmentManager.beginTransaction()
+            val methodPickerFragment = MethodPickerFragment()
+            transition.replace(R.id.FrameLayout, methodPickerFragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit()
         }
+
+        val id = arguments?.getString("id")
+        if(id == null) return;
+
+        ApiCall().getFile(id){ content->
+            val lines = content.split('\n')
+            Log.d("title" , lines[0])
+            val titleRegex = Regex("""---Title:\s*(.+)""")
+            val ballotTypeRegex = Regex("""---Ballot_Type:\s*(.+)""")
+            val descriptionRegex = Regex("""---Description:\s*(.+)""")
+
+            val title = titleRegex.find(lines[0])?.groupValues?.get(1) ?: ""
+            val ballotType = ballotTypeRegex.find(lines[1])?.groupValues?.get(1) ?: ""
+            val description = descriptionRegex.find(lines[2])?.groupValues?.get(1) ?: ""
+
+
+            binding.method.text = title
+            binding.BallotType.text = ballotType
+            binding.description.text = description
+        }
+
     }
 }
