@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "185115537788",
+    "firebase_url": "https://ultipoll-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "ultipoll",
+    "storage_bucket": "ultipoll.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:185115537788:android:f43205c81b5b96325eb4f9",
+        "android_client_info": {
+          "package_name": "com.ultipoll"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFJOHv_B6JV93FSMMSyKf-dvgBlCtRgtM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

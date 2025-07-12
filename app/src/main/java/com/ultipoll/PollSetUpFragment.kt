@@ -16,14 +16,22 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.children
 import androidx.fragment.app.FragmentTransaction
+import com.google.firebase.database.FirebaseDatabase
 import com.ultipoll.databinding.FragmentPollSetUpBinding
 import com.ultipoll.databinding.FragmentSplashBinding
+import kotlin.random.Random
+import kotlin.random.nextInt
 
 
 class PollSetUpFragment : Fragment() {
 
+    val database = FirebaseDatabase.getInstance("https://ultipoll-default-rtdb.europe-west1.firebasedatabase.app")
+    val ref = database.getReference("polls")
+    val options = mutableListOf<String>();
 
+    private var participate: Boolean = false;
     private lateinit var binding: FragmentPollSetUpBinding
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -76,7 +84,9 @@ class PollSetUpFragment : Fragment() {
             binding.OptionsMenu.addView(itemLayout)
             imgBtn.setOnClickListener{
                 binding.OptionsMenu.removeView(itemLayout)
+                options.remove(option)
             }
+            options.add(option)
             binding.Option.text.clear()
         }
         binding.method.setOnClickListener{
@@ -105,6 +115,47 @@ class PollSetUpFragment : Fragment() {
             binding.BallotType.text = ballotType
             binding.description.text = description
         }
+        binding.participateBtn.setOnClickListener {
+            if(participate){
+                binding.participateBtn.setBackgroundResource(R.drawable.check_box)
+            }else{
+                binding.participateBtn.setBackgroundResource(R.drawable.check_box_filled)
+            }
+            participate =!participate
+        }
+        binding.finish.setOnClickListener {
+            fun generateRandomID(onIdGenerated: (String) -> Unit){
+                fun genRandId(len:Int): String {
+                    var res = "";
+                    val acceptableChars= "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                    for(i in 1..len ){
+                        res+= acceptableChars[Random.nextInt(0,acceptableChars.length)];
+                    }
+                    return res;
+                }
+                ref.get().addOnSuccessListener { snapshot ->
+                    if(snapshot.exists()){
+                        val polls = snapshot.children.map { it.key }
+                        var id = "";
+                        do{
+                            id = genRandId(5);
+                        }while(polls.contains(id))
+                        onIdGenerated(id)
+                    }
+                }
+            }
 
+            generateRandomID {  id ->
+                val poll   = mapOf(
+                    "type" to binding.BallotType.text.toString(),
+                    "winner" to -1,
+                    "options" to options.filterNotNull()
+                )
+                ref.get().addOnSuccessListener {
+                    val newKey = "poll_$id"
+                    ref.child(newKey).setValue(poll);
+                }
+            }
+        }
     }
 }
