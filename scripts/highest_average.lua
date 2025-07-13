@@ -1,5 +1,5 @@
 ---Title: Highest Average
----Method: Point
+---Ballot_Type: Point
 ---Description: picks the candidate with the highest average score 
 
 
