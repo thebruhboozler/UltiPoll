@@ -159,9 +159,10 @@ class PollSetUpFragment : Fragment() {
 
 
                 if(ballotType == "Ranked" || ballotType == "Point" ){
-                    var votes = mutableMapOf<Int, Any?>();
-                    for(i in 0..binding.participantNum.text.toString().toInt()-1){
-                        votes.put(i , null);
+                    var votes = mutableMapOf<String, Any?>()
+                    val participantCount = binding.participantNum.text.toString().toInt()
+                    for(i in 0..participantCount){
+                        votes.put(i.toString() , "No vote present yet");
                     }
                     poll = basePoll + mapOf<String,Any>("votes" to votes.toMap())
                 }else {
