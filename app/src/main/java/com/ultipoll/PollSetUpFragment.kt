@@ -146,14 +146,39 @@ class PollSetUpFragment : Fragment() {
             }
 
             generateRandomID {  id ->
-                val poll   = mapOf(
-                    "type" to binding.BallotType.text.toString(),
-                    "winner" to -1,
-                    "options" to options.filterNotNull()
+                val ballotType = binding.BallotType.text.toString()
+                val basePoll = mapOf(
+                    "title"        to binding.Title.text.toString(),
+                    "type"         to ballotType,
+                    "winner"       to -1,
+                    "participants" to binding.participantNum.text.toString().toInt(),
+                    "options"      to options.filterNotNull()
                 )
+                val poll: Map<String, Any>;
+
+
+
+                if(ballotType == "Ranked" || ballotType == "Point" ){
+                    var votes = mutableMapOf<Int, Any?>();
+                    for(i in 0..binding.participantNum.text.toString().toInt()-1){
+                        votes.put(i , null);
+                    }
+                    poll = basePoll + mapOf<String,Any>("votes" to votes.toMap())
+                }else {
+                    val optionEntries: Map<String, Any> =
+                        options.filterNotNull().associate { it to 0 }
+                    poll = basePoll + mapOf<String,Any>("votes" to optionEntries)
+                }
+
+
+
                 ref.get().addOnSuccessListener {
                     val newKey = "poll_$id"
                     ref.child(newKey).setValue(poll);
+                }
+                if(participate){
+                    parentFragmentManager.beginTransaction().replace(R.id.FrameLayout,
+                        BoothFragment()).commit();
                 }
             }
         }
