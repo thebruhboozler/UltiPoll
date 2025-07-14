@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".IdInputFragment">
+
+    <LinearLayout
+        android:id="@+id/idDisplayLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/confirm"
+        android:layout_marginTop="50dp"
+        android:gravity="center_vertical"
+        >
+        <TextView
+            android:id="@+id/idDisplay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/InputLabel"
+            android:textSize="24sp"
+            android:layout_marginEnd="10dp"
+            />
+        <ImageButton
+            android:id="@+id/copy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/icon_copy"
+            android:background="@null"
+            />
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/confirm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/idDisplayLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_margin="30dp"
+        android:src="@drawable/icon_arrow_right"
+        android:background="@null"
+        />
+</androidx.constraintlayout.widget.ConstraintLayout>

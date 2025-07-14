@@ -152,10 +152,10 @@ class PollSetUpFragment : Fragment() {
                     "type"         to ballotType,
                     "winner"       to -1,
                     "participants" to binding.participantNum.text.toString().toInt(),
-                    "options"      to options.filterNotNull()
+                    "options"      to options.filterNotNull(),
+                    "numOfVotesCast" to 0
                 )
                 val poll: Map<String, Any>;
-
 
 
                 if(ballotType == "Ranked" || ballotType == "Point" ){
@@ -178,8 +178,7 @@ class PollSetUpFragment : Fragment() {
                     ref.child(newKey).setValue(poll);
                 }
                 if(participate){
-                    parentFragmentManager.beginTransaction().replace(R.id.FrameLayout,
-                        BoothFragment()).commit();
+                    IdDisplayFragment.newInstance(id).show(parentFragmentManager,"IdDisplay")
                 }
             }
         }

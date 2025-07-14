@@ -42,13 +42,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
-            android:background="@android:color/transparent"
             android:digits="0123456789"
-            android:fontFamily="@font/lato_bold"
             android:inputType="number"
             android:text="10"
             android:textAlignment="center"
-            android:textSize="22sp" />
+            style="@style/optionStyle"
+            />
     </LinearLayout>
 
     <include layout="@layout/divider" />
@@ -73,9 +72,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
-            android:fontFamily="@font/lato_bold"
-            android:textColor="@color/black"
-            android:textSize="22sp" />
+            style="@style/optionStyle" />
     </LinearLayout>
 
     <include layout="@layout/divider" />
@@ -99,9 +96,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
-            android:fontFamily="@font/lato_bold"
-            android:textColor="@color/black"
-            android:textSize="22sp" />
+            style="@style/optionStyle"/>
     </LinearLayout>
 
     <include layout="@layout/divider" />

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:gravity="center_vertical"
+    android:background="@drawable/option_background"
+    android:paddingHorizontal="15dp"
+    android:layout_marginVertical="2dp"
+    >
+
+
+    <TextView
+        android:id="@+id/option"
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:textAlignment="viewStart"
+        style="@style/optionStyle"
+        android:layout_weight="1"
+        />
+    <ImageButton
+        android:id="@+id/decrease"
+        android:layout_width="15dp"
+        android:layout_height="5dp"
+        android:src="@drawable/icon_minus"
+        android:background="@null"
+        />
+    <TextView
+        android:id="@+id/points"
+        android:layout_width="48dp"
+        android:layout_height="wrap_content"
+        style="@style/optionStyle"
+        />
+    <ImageButton
+        android:id="@+id/increase"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/icon_add"
+        android:background="@null"
+        />
+</LinearLayout>

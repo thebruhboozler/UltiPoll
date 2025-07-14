@@ -30,5 +30,8 @@ class SplashFragment : Fragment() {
             pollSetUpFragment.arguments = bundle
             transition.replace(R.id.FrameLayout,pollSetUpFragment).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit()
         }
+        binding.participateBtn.setOnClickListener {
+            IdInputFragment().show(parentFragmentManager,"IdInput")
+        }
     }
 }

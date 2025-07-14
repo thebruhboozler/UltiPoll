@@ -9,6 +9,7 @@ import android.view.ViewGroup
 class WaitingRoomFragment : Fragment() {
 
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -17,4 +18,7 @@ class WaitingRoomFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_waiting_room, container, false)
     }
 
+
+
+    
 }

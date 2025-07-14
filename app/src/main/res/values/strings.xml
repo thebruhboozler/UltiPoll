@@ -15,4 +15,5 @@
     <string name="participate">Participate</string>
     <string name="finish">Finish</string>
     <string name="pick_a_method">Pick a Method</string>
+    <string name="input_id_here">Input Id here</string>
 </resources>
