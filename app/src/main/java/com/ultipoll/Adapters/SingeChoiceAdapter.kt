@@ -30,6 +30,9 @@ class SingeChoiceAdapter(private  var options: List<OptionCheckbox>):
         holder.checkBox.isChecked = (position == selectedPosition)
     }
 
+    fun getChecked(): List<OptionCheckbox> =
+        options.filter { it.isChecked }
+
     override fun getItemCount() = options.count()
 
     inner  class OptionHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
@@ -38,14 +41,17 @@ class SingeChoiceAdapter(private  var options: List<OptionCheckbox>):
 
         init {
             checkBox.setOnClickListener {
-                val position = adapterPosition
-                if (position != RecyclerView.NO_POSITION) {
-                    if (selectedPosition != position) {
-                        val oldPosition = selectedPosition
-                        selectedPosition = position
-                        notifyItemChanged(oldPosition)
-                        notifyItemChanged(position)
+                val pos = adapterPosition
+                if (pos != RecyclerView.NO_POSITION) {
+
+                    if (selectedPosition != -1) {
+                        options[selectedPosition].isChecked = false
+                        notifyItemChanged(selectedPosition)
                     }
+
+                    selectedPosition = pos
+                    options[pos].isChecked = true
+                    notifyItemChanged(pos)
                 }
             }
         }

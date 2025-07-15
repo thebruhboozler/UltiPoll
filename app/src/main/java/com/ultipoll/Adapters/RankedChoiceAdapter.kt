@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ultipoll.R
 import com.ultipoll.dataclasses.OptionRanked
 
-class RankedChoiceAdapter(private var options: List<OptionRanked>):
+class RankedChoiceAdapter(private var options: MutableList<OptionRanked>):
     RecyclerView.Adapter<RankedChoiceAdapter.OptionHolder>(){
     override fun onCreateViewHolder(
         parent: ViewGroup,

@@ -18,6 +18,7 @@ import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
 import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.activityViewModels
 import com.google.firebase.database.FirebaseDatabase
 import com.ultipoll.databinding.FragmentPollSetUpBinding
 import com.ultipoll.databinding.FragmentSplashBinding
@@ -27,9 +28,13 @@ import kotlin.random.nextInt
 
 class PollSetUpFragment : Fragment() {
 
-    val database = FirebaseDatabase.getInstance("https://ultipoll-default-rtdb.europe-west1.firebasedatabase.app")
+    val database =
+        FirebaseDatabase.getInstance("https://ultipoll-default-rtdb.europe-west1.firebasedatabase.app")
     val ref = database.getReference("polls")
-    val options = mutableListOf<String>();
+    val options = mutableListOf<String>()
+    private val vm: PollViewModel by activityViewModels()
+    private lateinit var script: String
+
 
     private var participate: Boolean = false;
     private lateinit var binding: FragmentPollSetUpBinding
@@ -37,59 +42,14 @@ class PollSetUpFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentPollSetUpBinding.inflate( inflater,container,false)
+        binding = FragmentPollSetUpBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.AddOptionBtn.setOnClickListener{
-            val option = binding.Option.text.toString()
-            if(option.isBlank()) return@setOnClickListener;
-            val latoTf = ResourcesCompat.getFont(requireContext(), R.font.lato_bold)
-            val textView = TextView(requireContext()).apply {
-                text = option
-                setTextColor(Color.BLACK)
-                typeface = latoTf
-                setTextSize(TypedValue.COMPLEX_UNIT_SP,22f)
-                layoutParams = LinearLayout.LayoutParams(
-                    0,
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    1f
-                )
-            }
-            val imgBtn = ImageButton(requireContext()).apply {
-                setImageResource(R.drawable.icon_minus)
-                background=null
-                setPadding(0, 0, 0, 0)
-                scaleType = ImageView.ScaleType.FIT_CENTER
-                layoutParams = ViewGroup.LayoutParams(
-                    (25 * context.resources.displayMetrics.density).toInt(),
-                    (25 * context.resources.displayMetrics.density).toInt()
-                )
-            }
-
-            val itemLayout = LinearLayout(requireContext()).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER_VERTICAL
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    setMargins(10,10,10,10)
-                }
-            }
-            itemLayout.addView(textView)
-            itemLayout.addView(imgBtn)
-            binding.OptionsMenu.addView(itemLayout)
-            imgBtn.setOnClickListener{
-                binding.OptionsMenu.removeView(itemLayout)
-                options.remove(option)
-            }
-            options.add(option)
-            binding.Option.text.clear()
-        }
-        binding.method.setOnClickListener{
+        binding.AddOptionBtn.setOnClickListener { addOption() }
+        binding.method.setOnClickListener {
             val transition = parentFragmentManager.beginTransaction()
             val methodPickerFragment = MethodPickerFragment()
             transition.replace(R.id.FrameLayout, methodPickerFragment)
@@ -97,9 +57,9 @@ class PollSetUpFragment : Fragment() {
         }
 
         val id = arguments?.getString("id")
-        if(id == null) return;
-
-        ApiCall().getFile(id){ content->
+        if (id == null) return;
+        ApiCall().getFile(id) { content ->
+            script = content
             val lines = content.split('\n')
 
             val titleRegex = Regex("""---Title:\s*(.+)""")
@@ -115,72 +75,123 @@ class PollSetUpFragment : Fragment() {
             binding.BallotType.text = ballotType
             binding.description.text = description
         }
+
         binding.participateBtn.setOnClickListener {
-            if(participate){
+            if (participate) {
                 binding.participateBtn.setBackgroundResource(R.drawable.check_box)
-            }else{
+            } else {
                 binding.participateBtn.setBackgroundResource(R.drawable.check_box_filled)
             }
-            participate =!participate
+            participate = !participate
         }
-        binding.finish.setOnClickListener {
-            fun generateRandomID(onIdGenerated: (String) -> Unit){
-                fun genRandId(len:Int): String {
-                    var res = "";
-                    val acceptableChars= "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                    for(i in 1..len ){
-                        res+= acceptableChars[Random.nextInt(0,acceptableChars.length)];
-                    }
-                    return res;
+
+        binding.finish.setOnClickListener { onFinishClicked() }
+    }
+
+    fun addOption() {
+        val option = binding.Option.text.toString()
+        if (option.isBlank()) return;
+        val latoTf = ResourcesCompat.getFont(requireContext(), R.font.lato_bold)
+        val textView = TextView(requireContext()).apply {
+            text = option
+            setTextColor(Color.BLACK)
+            typeface = latoTf
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 22f)
+            layoutParams = LinearLayout.LayoutParams(
+                0,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1f
+            )
+        }
+        val imgBtn = ImageButton(requireContext()).apply {
+            setImageResource(R.drawable.icon_minus)
+            background = null
+            setPadding(0, 0, 0, 0)
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            layoutParams = ViewGroup.LayoutParams(
+                (25 * context.resources.displayMetrics.density).toInt(),
+                (25 * context.resources.displayMetrics.density).toInt()
+            )
+        }
+
+        val itemLayout = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(10, 10, 10, 10)
+            }
+        }
+        itemLayout.addView(textView)
+        itemLayout.addView(imgBtn)
+        binding.OptionsMenu.addView(itemLayout)
+        imgBtn.setOnClickListener {
+            binding.OptionsMenu.removeView(itemLayout)
+            options.remove(option)
+        }
+        options.add(option)
+        binding.Option.text.clear()
+    }
+
+    fun onFinishClicked() {
+        fun generateRandomID(onIdGenerated: (String) -> Unit) {
+            fun genRandId(len: Int): String {
+                var res = "";
+                val acceptableChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                for (i in 1..len) {
+                    res += acceptableChars[Random.nextInt(0, acceptableChars.length)];
                 }
-                ref.get().addOnSuccessListener { snapshot ->
-                    if(snapshot.exists()){
-                        val polls = snapshot.children.map { it.key }
-                        var id = "";
-                        do{
-                            id = genRandId(5);
-                        }while(polls.contains(id))
-                        onIdGenerated(id)
-                    }
+                return res;
+            }
+            ref.get().addOnSuccessListener { snapshot ->
+                if (snapshot.exists()) {
+                    val polls = snapshot.children.map { it.key }
+                    var id = "";
+                    do {
+                        id = genRandId(5);
+                    } while (polls.contains(id))
+                    onIdGenerated(id)
                 }
             }
+        }
 
-            generateRandomID {  id ->
-                val ballotType = binding.BallotType.text.toString()
-                val basePoll = mapOf(
-                    "title"        to binding.Title.text.toString(),
-                    "type"         to ballotType,
-                    "winner"       to -1,
-                    "participants" to binding.participantNum.text.toString().toInt(),
-                    "options"      to options.filterNotNull(),
-                    "numOfVotesCast" to 0
-                )
-                val poll: Map<String, Any>;
+        generateRandomID { id ->
+            val ballotType = binding.BallotType.text.toString()
+            val basePoll = mapOf(
+                "title" to binding.Title.text.toString(),
+                "type" to ballotType,
+                "winner" to -1,
+                "participants" to binding.participantNum.text.toString().toInt(),
+                "options" to options.filterNotNull(),
+                "numOfVotesCast" to 0
+            )
+            val poll: Map<String, Any>;
 
 
-                if(ballotType == "Ranked" || ballotType == "Point" ){
-                    var votes = mutableMapOf<String, Any?>()
-                    val participantCount = binding.participantNum.text.toString().toInt()
-                    for(i in 0..participantCount){
-                        votes.put(i.toString() , "No vote present yet");
-                    }
-                    poll = basePoll + mapOf<String,Any>("votes" to votes.toMap())
-                }else {
-                    val optionEntries: Map<String, Any> =
-                        options.filterNotNull().associate { it to 0 }
-                    poll = basePoll + mapOf<String,Any>("votes" to optionEntries)
+            if (ballotType == "Ranked" || ballotType == "Point") {
+                var votes = mutableMapOf<String, Any?>()
+                val participantCount = binding.participantNum.text.toString().toInt()
+                for (i in 0..participantCount) {
+                    votes.put(i.toString(), "No vote present yet");
                 }
-
-
-
-                ref.get().addOnSuccessListener {
-                    val newKey = "poll_$id"
-                    ref.child(newKey).setValue(poll);
-                }
-                if(participate){
-                    IdDisplayFragment.newInstance(id).show(parentFragmentManager,"IdDisplay")
-                }
+                poll = basePoll + mapOf<String, Any>("votes" to votes.toMap())
+            } else {
+                val optionEntries: Map<String, Any> =
+                    options.filterNotNull().associate { it to 0 }
+                poll = basePoll + mapOf<String, Any>("votes" to optionEntries)
             }
+
+
+            ref.get().addOnSuccessListener {
+                val newKey = "poll_$id"
+                ref.child(newKey).setValue(poll);
+            }
+            vm.startLuaRunner(id,script)
+            IdDisplayFragment.newInstance(id).show(parentFragmentManager, "IdDisplay")
+
         }
     }
+
 }

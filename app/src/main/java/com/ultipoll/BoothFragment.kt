@@ -6,11 +6,17 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.GenericTypeIndicator
+import com.google.firebase.database.MutableData
+import com.google.firebase.database.ServerValue
+import com.google.firebase.database.Transaction
 import com.ultipoll.Adapters.MultipleChoiceAdapter
 import com.ultipoll.Adapters.PointChoiceAdapter
 import com.ultipoll.Adapters.RankedChoiceAdapter
@@ -27,6 +33,7 @@ class BoothFragment : Fragment() {
     val ref = database.getReference("polls")
     private lateinit var binding: FragmentBoothBinding
     private lateinit var pollId:String
+    private val vm: PollViewModel by activityViewModels()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,64 +60,121 @@ class BoothFragment : Fragment() {
             val optionsType = object : GenericTypeIndicator<List<String>>() {}
             val options = snapshot.child("options").getValue(optionsType) as List<String>
 
+            binding.recyclerView.layoutManager = LinearLayoutManager(context)
+            var adapter:Any? = null
             when(type){
-                "Point" -> setUpPointBooth(options)
-                "Ranked" -> setUpRankedBooth(options)
-                "Multiple" -> setUpMultipleBooth(options)
-                "Single" -> setUpSingleBooth(options)
+                "Point" -> {
+                    val optionDataClasses: List<OptionPoint> = options.filterNotNull().map { str-> OptionPoint(str) }
+                    binding.recyclerView.adapter = PointChoiceAdapter(optionDataClasses)
+                    binding.finish.setOnClickListener { onFinishClickedPoint(optionDataClasses) }
+                }
+
+                "Multiple" -> {
+                    val optionDataClasses: List<OptionCheckbox> = options.filterNotNull().map { str-> OptionCheckbox(str) }
+                    val adapter = MultipleChoiceAdapter(optionDataClasses)
+                    binding.recyclerView.adapter = adapter
+                    binding.finish.setOnClickListener { onFinishClickedCheckBox(adapter.getChecked())}
+                }
+                "Single" -> {
+                    val optionDataClasses: List<OptionCheckbox> = options.filterNotNull().map { str-> OptionCheckbox(str) }
+                    val adapter = SingeChoiceAdapter(optionDataClasses)
+                    binding.recyclerView.adapter = adapter
+                    binding.finish.setOnClickListener { onFinishClickedCheckBox(adapter.getChecked())}
+                }
+                "Ranked" -> {
+                    val optionDataClasses: MutableList<OptionRanked> = options.filterNotNull().map { str-> OptionRanked(str) }.toMutableList()
+                    binding.recyclerView.adapter = RankedChoiceAdapter(optionDataClasses)
+                    val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
+                        ItemTouchHelper.UP or ItemTouchHelper.DOWN,0){
+                        override fun onMove(
+                            recyclerView: RecyclerView,
+                            source: RecyclerView.ViewHolder,
+                            target: RecyclerView.ViewHolder
+                        ): Boolean {
+                            val sourcePos = source.adapterPosition
+                            val targetPos = target.adapterPosition
+
+                            Collections.swap(optionDataClasses,sourcePos,targetPos)
+                            binding.recyclerView.adapter!!.notifyItemMoved(sourcePos,targetPos)
+                            return true
+                        }
+
+                        override fun onSwiped(
+                            viewHolder: RecyclerView.ViewHolder,
+                            direction: Int
+                        ) {
+                            TODO("Not yet implemented")
+                        }
+                    })
+                    itemTouchHelper.attachToRecyclerView(binding.recyclerView)
+
+                    binding.finish.setOnClickListener { onFinishClickedRanked(optionDataClasses) }
+                }
                 else -> Log.e("setUpBooth", "Unknown ballot type")
             }
+
         }
     }
 
-    fun setUpPointBooth(options: List<String>){
-        binding.recyclerView.layoutManager = LinearLayoutManager(context)
-        val optionDataClasses: List<OptionPoint> = options.filterNotNull().map { str-> OptionPoint(str) }
-        val adapter = PointChoiceAdapter(optionDataClasses)
-        binding.recyclerView.adapter = adapter
-    }
-    fun setUpSingleBooth(options: List<String>){
-        binding.recyclerView.layoutManager = LinearLayoutManager(context)
-        val optionDataClasses: List<OptionCheckbox> = options.filterNotNull().map { str-> OptionCheckbox(str) }
-        val adapter = SingeChoiceAdapter(optionDataClasses)
-        binding.recyclerView.adapter = adapter
-    }
-    fun setUpRankedBooth(options: List<String>){
-        binding.recyclerView.layoutManager = LinearLayoutManager(context)
-        val optionDataClasses: List<OptionRanked> = options.filterNotNull().map { str-> OptionRanked(str) }
-        val adapter = RankedChoiceAdapter(optionDataClasses)
-        binding.recyclerView.adapter = adapter
 
-        val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.UP or ItemTouchHelper.DOWN,0){
-            override fun onMove(
-                recyclerView: RecyclerView,
-                source: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
-                val sourcePos = source.adapterPosition
-                val targetPos = target.adapterPosition
+    fun onFinishClickedRanked(options:List<OptionRanked>){
+        val pollRef = ref.child("poll_$pollId")
 
-                Collections.swap(optionDataClasses,sourcePos,targetPos)
-                adapter.notifyItemMoved(sourcePos,targetPos)
-                return true
+        pollRef.runTransaction(object : Transaction.Handler{
+            override fun doTransaction(currentData: MutableData): Transaction.Result {
+                val currentCount = currentData.child("numOfVotesCast").getValue(Int::class.java) ?: 0
+                currentData.child("votes").child(currentCount.toString()).value = options.map {option -> option.option}
+                currentData.child("numOfVotesCast").value = currentCount+1
+                return Transaction.success(currentData)
             }
 
-            override fun onSwiped(
-                viewHolder: RecyclerView.ViewHolder,
-                direction: Int
+            override fun onComplete(
+                error: DatabaseError?,
+                committed: Boolean,
+                currentData: DataSnapshot?
             ) {
-                TODO("Not yet implemented")
+                if (error != null) {
+                    Log.e("poll", "Vote failed", error.toException())
+                } else {
+                    Log.d("poll", "Vote recorded")
+                }
             }
         })
-
-        itemTouchHelper.attachToRecyclerView(binding.recyclerView)
     }
-    fun setUpMultipleBooth(options: List<String>){
-        binding.recyclerView.layoutManager = LinearLayoutManager(context)
-        val optionDataClasses: List<OptionCheckbox> = options.filterNotNull().map { str-> OptionCheckbox(str) }
-        val adapter = MultipleChoiceAdapter(optionDataClasses)
-        binding.recyclerView.adapter = adapter
+    fun onFinishClickedPoint(options:List<OptionPoint>){
+        val pollRef = ref.child("poll_$pollId")
+
+        pollRef.runTransaction(object : Transaction.Handler{
+            override fun doTransaction(currentData: MutableData): Transaction.Result {
+                val currentCount = currentData.child("numOfVotesCast").getValue(Int::class.java) ?: 0
+                currentData.child("votes").child(currentCount.toString()).value = options.associate {it.option to (it.points ?: -1) }
+                currentData.child("numOfVotesCast").value = currentCount+1
+                return Transaction.success(currentData)
+            }
+            override fun onComplete(
+                error: DatabaseError?,
+                committed: Boolean,
+                currentData: DataSnapshot?
+            ) {
+                if (error != null) {
+                    Log.e("poll", "Vote failed", error.toException())
+                } else {
+                    Log.d("poll", "Vote recorded")
+                }
+            }
+        })
+    }
+
+    fun onFinishClickedCheckBox( options:List<OptionCheckbox>){
+        val pollRef = ref.child("poll_$pollId")
+
+        val updates = mutableMapOf<String, Any>(
+            "numOfVotesCast" to ServerValue.increment(1)
+        )
+        for (opt in options) {
+                updates["votes/${opt.option}"] = ServerValue.increment(1)
+        }
+        pollRef.updateChildren(updates)
     }
 
     companion object {

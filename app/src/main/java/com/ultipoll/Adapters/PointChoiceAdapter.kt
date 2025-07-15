@@ -43,7 +43,6 @@ class PointChoiceAdapter(private var options: List<OptionPoint>):
 
         init{
             increaseRating.setOnClickListener {
-                Log.d("stuffy" , "increased")
                 val pos = adapterPosition
                 if(pos == RecyclerView.NO_POSITION) return@setOnClickListener
                 val item = options[pos]

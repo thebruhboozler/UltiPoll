@@ -28,10 +28,20 @@ class MultipleChoiceAdapter(private  val options: List<OptionCheckbox>):
         holder.checkBox.isChecked = option.isChecked
     }
 
+    fun getChecked(): List<OptionCheckbox> =
+        options.filter { it.isChecked }
+
     override fun getItemCount() = options.count()
 
     inner class OptionHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
         val optionText: TextView = itemView.findViewById(R.id.option)
         val checkBox: CheckBox = itemView.findViewById(R.id.checkbox)
+        init{
+            checkBox.setOnClickListener {
+                val pos = adapterPosition
+                if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+                options[pos].isChecked = !options[pos].isChecked
+            }
+        }
     }
 }
