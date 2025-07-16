@@ -66,20 +66,20 @@ class BoothFragment : Fragment() {
                 "Point" -> {
                     val optionDataClasses: List<OptionPoint> = options.filterNotNull().map { str-> OptionPoint(str) }
                     binding.recyclerView.adapter = PointChoiceAdapter(optionDataClasses)
-                    binding.finish.setOnClickListener { onFinishClickedPoint(optionDataClasses) }
+                    binding.finish.setOnClickListener { onFinishClickedPoint(optionDataClasses) ; gotoWaitingRoom() }
                 }
 
                 "Multiple" -> {
                     val optionDataClasses: List<OptionCheckbox> = options.filterNotNull().map { str-> OptionCheckbox(str) }
                     val adapter = MultipleChoiceAdapter(optionDataClasses)
                     binding.recyclerView.adapter = adapter
-                    binding.finish.setOnClickListener { onFinishClickedCheckBox(adapter.getChecked())}
+                    binding.finish.setOnClickListener { onFinishClickedCheckBox(adapter.getChecked()) ; gotoWaitingRoom()}
                 }
                 "Single" -> {
                     val optionDataClasses: List<OptionCheckbox> = options.filterNotNull().map { str-> OptionCheckbox(str) }
                     val adapter = SingeChoiceAdapter(optionDataClasses)
                     binding.recyclerView.adapter = adapter
-                    binding.finish.setOnClickListener { onFinishClickedCheckBox(adapter.getChecked())}
+                    binding.finish.setOnClickListener { onFinishClickedCheckBox(adapter.getChecked()) ; gotoWaitingRoom()}
                 }
                 "Ranked" -> {
                     val optionDataClasses: MutableList<OptionRanked> = options.filterNotNull().map { str-> OptionRanked(str) }.toMutableList()
@@ -108,7 +108,7 @@ class BoothFragment : Fragment() {
                     })
                     itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
-                    binding.finish.setOnClickListener { onFinishClickedRanked(optionDataClasses) }
+                    binding.finish.setOnClickListener { onFinishClickedRanked(optionDataClasses) ; gotoWaitingRoom()}
                 }
                 else -> Log.e("setUpBooth", "Unknown ballot type")
             }
@@ -117,7 +117,7 @@ class BoothFragment : Fragment() {
     }
 
 
-    fun onFinishClickedRanked(options:List<OptionRanked>){
+    private fun onFinishClickedRanked(options:List<OptionRanked>){
         val pollRef = ref.child("poll_$pollId")
 
         pollRef.runTransaction(object : Transaction.Handler{
@@ -141,7 +141,7 @@ class BoothFragment : Fragment() {
             }
         })
     }
-    fun onFinishClickedPoint(options:List<OptionPoint>){
+    private  fun onFinishClickedPoint(options:List<OptionPoint>){
         val pollRef = ref.child("poll_$pollId")
 
         pollRef.runTransaction(object : Transaction.Handler{
@@ -165,7 +165,7 @@ class BoothFragment : Fragment() {
         })
     }
 
-    fun onFinishClickedCheckBox( options:List<OptionCheckbox>){
+    private fun onFinishClickedCheckBox( options:List<OptionCheckbox>){
         val pollRef = ref.child("poll_$pollId")
 
         val updates = mutableMapOf<String, Any>(
@@ -175,6 +175,10 @@ class BoothFragment : Fragment() {
                 updates["votes/${opt.option}"] = ServerValue.increment(1)
         }
         pollRef.updateChildren(updates)
+    }
+
+    private fun gotoWaitingRoom(){
+        parentFragmentManager.beginTransaction().replace(R.id.FrameLayout, WaitingRoomFragment.newInstance(pollId)).commit()
     }
 
     companion object {

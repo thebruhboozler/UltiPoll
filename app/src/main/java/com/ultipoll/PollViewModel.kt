@@ -48,7 +48,7 @@ class PollViewModel: ViewModel() {
         if (numVotes != participantNum) return
 
         val ballotType = snapshot.child("type").getValue(String::class.java)
-        val votesMap: Map<*, *> = when (ballotType) {
+        val votesMap: Map<*, *> = try{ when (ballotType) {
             "Ranked" -> snapshot.child("votes")
                 .getValue(object : GenericTypeIndicator<List<List< String>>>() {})
                 ?.withIndex()?.associate { (i,v) -> i+1 to
@@ -63,7 +63,15 @@ class PollViewModel: ViewModel() {
                 ?.withIndex()?.associate { (i,v) -> (i+1) to v }
                 ?: emptyMap()
             else -> return
+        }} catch (err: Exception){
+            Log.e("PollDataParse" , "Unable to parse Data because ${err.toString()}")
+            return
         }
-        val winner = luaRunner.runLua(script, votesMap)
+
+        val options = snapshot.child("options").getValue(object:
+            GenericTypeIndicator<List<String>>() {})
+
+        val winner = luaRunner.runLua(script, votesMap, options)
+        Log.d("Poll winner", "winner = $winner")
     }
 }

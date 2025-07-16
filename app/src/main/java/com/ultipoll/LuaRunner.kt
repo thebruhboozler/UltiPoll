@@ -7,9 +7,10 @@ import org.luaj.vm2.lib.*
 
 class LuaRunner {
 
-    public fun runLua(source: String, map: Map<*, *>?): Int {
+    public fun runLua(source: String, map: Map<*, *>?, options: List<String>?): Int {
         val L = standardSandbox()          // new instance each time
         L.set("votes" , mapToLuaTable(map))
+        L.set("options" , mapToLuaTable(options?.withIndex()?.associate { (i,v) -> i+1 to v }))
         val chunk = L.load(source)
         return chunk.call().toint()
     }
@@ -28,6 +29,11 @@ class LuaRunner {
                     luaTable.set(mapping.key as String , mapping.value as Int)
                 }
                 is Int ->{
+                    if(mapping.value is String){
+                        luaTable.set(mapping.key as Int, LuaValue.valueOf(mapping.value.toString()) )
+                        continue
+                    }
+
                     if(mapping.value !is Map<*,*>){
                         Log.e("LuaRunner","Expected Int -> Map<*,*> mapping ")
                         return null
