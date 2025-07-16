@@ -6,7 +6,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,10 +16,10 @@ import com.google.firebase.database.GenericTypeIndicator
 import com.google.firebase.database.MutableData
 import com.google.firebase.database.ServerValue
 import com.google.firebase.database.Transaction
-import com.ultipoll.Adapters.MultipleChoiceAdapter
-import com.ultipoll.Adapters.PointChoiceAdapter
-import com.ultipoll.Adapters.RankedChoiceAdapter
-import com.ultipoll.Adapters.SingeChoiceAdapter
+import com.ultipoll.adapters.MultipleChoiceAdapter
+import com.ultipoll.adapters.PointChoiceAdapter
+import com.ultipoll.adapters.RankedChoiceAdapter
+import com.ultipoll.adapters.SingeChoiceAdapter
 import com.ultipoll.databinding.FragmentBoothBinding
 import com.ultipoll.dataclasses.OptionCheckbox
 import com.ultipoll.dataclasses.OptionPoint

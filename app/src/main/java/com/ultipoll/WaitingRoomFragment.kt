@@ -1,11 +1,16 @@
 package com.ultipoll
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringSetPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import androidx.lifecycle.lifecycleScope
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -17,6 +22,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.floor
+
+val Context.pollDataStore by preferencesDataStore(name = "user_polls")
+val POLL_ID_SET_KEY = stringSetPreferencesKey("poll_ids")
+
+suspend fun addPollId(context: Context, pollId: String) {
+    context.pollDataStore.edit { preferences ->
+        val currentIds = preferences[POLL_ID_SET_KEY] ?: emptySet()
+        preferences[POLL_ID_SET_KEY] = currentIds + pollId
+    }
+}
+
 
 class WaitingRoomFragment : Fragment() {
 
@@ -39,6 +55,9 @@ class WaitingRoomFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         startTimer()
         pollId = arguments?.getString(ARG_ID).toString()
+        lifecycleScope.launch {
+            addPollId(requireContext() , pollId)
+        }
         ref.child("poll_$pollId").addValueEventListener(object: ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
                 binding.numOfVotes.text = snapshot.child("numOfVotesCast").getValue(Int::class.java).toString()

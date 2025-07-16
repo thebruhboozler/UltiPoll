@@ -57,4 +57,6 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.16.0"))
     implementation("com.google.firebase:firebase-database-ktx:21.0.0")
     implementation("org.luaj:luaj-jme:3.0.1")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+
 }

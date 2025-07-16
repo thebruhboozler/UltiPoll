@@ -1,4 +1,4 @@
-package com.ultipoll.Adapters
+package com.ultipoll.adapters
 
 import android.view.LayoutInflater
 import androidx.recyclerview.widget.RecyclerView
