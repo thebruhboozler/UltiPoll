@@ -33,7 +33,6 @@ class BoothFragment : Fragment() {
     val ref = database.getReference("polls")
     private lateinit var binding: FragmentBoothBinding
     private lateinit var pollId:String
-    private val vm: PollViewModel by activityViewModels()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,28 +60,27 @@ class BoothFragment : Fragment() {
             val options = snapshot.child("options").getValue(optionsType) as List<String>
 
             binding.recyclerView.layoutManager = LinearLayoutManager(context)
-            var adapter:Any? = null
             when(type){
                 "Point" -> {
-                    val optionDataClasses: List<OptionPoint> = options.filterNotNull().map { str-> OptionPoint(str) }
+                    val optionDataClasses: List<OptionPoint> = options.map { str-> OptionPoint(str) }
                     binding.recyclerView.adapter = PointChoiceAdapter(optionDataClasses)
                     binding.finish.setOnClickListener { onFinishClickedPoint(optionDataClasses) ; gotoWaitingRoom() }
                 }
 
                 "Multiple" -> {
-                    val optionDataClasses: List<OptionCheckbox> = options.filterNotNull().map { str-> OptionCheckbox(str) }
+                    val optionDataClasses: List<OptionCheckbox> = options.map { str-> OptionCheckbox(str) }
                     val adapter = MultipleChoiceAdapter(optionDataClasses)
                     binding.recyclerView.adapter = adapter
                     binding.finish.setOnClickListener { onFinishClickedCheckBox(adapter.getChecked()) ; gotoWaitingRoom()}
                 }
                 "Single" -> {
-                    val optionDataClasses: List<OptionCheckbox> = options.filterNotNull().map { str-> OptionCheckbox(str) }
+                    val optionDataClasses: List<OptionCheckbox> = options.map { str-> OptionCheckbox(str) }
                     val adapter = SingeChoiceAdapter(optionDataClasses)
                     binding.recyclerView.adapter = adapter
                     binding.finish.setOnClickListener { onFinishClickedCheckBox(adapter.getChecked()) ; gotoWaitingRoom()}
                 }
                 "Ranked" -> {
-                    val optionDataClasses: MutableList<OptionRanked> = options.filterNotNull().map { str-> OptionRanked(str) }.toMutableList()
+                    val optionDataClasses: MutableList<OptionRanked> = options.map { str-> OptionRanked(str) }.toMutableList()
                     binding.recyclerView.adapter = RankedChoiceAdapter(optionDataClasses)
                     val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
                         ItemTouchHelper.UP or ItemTouchHelper.DOWN,0){

@@ -7,10 +7,10 @@ import org.luaj.vm2.lib.*
 
 class LuaRunner {
 
-    public fun runLua(source: String, map: Map<*, *>?, options: List<String>?): Int {
+    fun runLua(source: String, map: Map<*, *>?, options: List<String>?): Int {
         val L = standardSandbox()          // new instance each time
         L.set("votes" , mapToLuaTable(map))
-        L.set("options" , mapToLuaTable(options?.withIndex()?.associate { (i,v) -> i+1 to v }))
+        L.set("candidates" , mapToLuaTable(options?.withIndex()?.associate { (i,v) -> i+1 to v }))
         val chunk = L.load(source)
         return chunk.call().toint()
     }
@@ -20,7 +20,7 @@ class LuaRunner {
     }
 
 
-    public fun mapToLuaTable(map: Map<*, *>?): LuaTable?{
+    private fun mapToLuaTable(map: Map<*, *>?): LuaTable?{
         val luaTable = LuaTable()
         if(map == null) return luaTable
         for(mapping in map){

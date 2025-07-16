@@ -9,14 +9,14 @@ import android.view.ViewGroup
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.GenericTypeIndicator
 import com.google.firebase.database.ValueEventListener
-import com.ultipoll.databinding.FragmentIdInputBinding
 import com.ultipoll.databinding.FragmentWaitingRoomBinding
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.floor
 
 class WaitingRoomFragment : Fragment() {
 
@@ -39,11 +39,18 @@ class WaitingRoomFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         startTimer()
         pollId = arguments?.getString(ARG_ID).toString()
-        Log.d("Waiting Room fragment" , pollId)
         ref.child("poll_$pollId").addValueEventListener(object: ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
                 binding.numOfVotes.text = snapshot.child("numOfVotesCast").getValue(Int::class.java).toString()
                 binding.participantNum.text = snapshot.child("participants").getValue(Int::class.java).toString()
+
+                val winner =  snapshot.child("winner").getValue(Int::class.java) ?: -1
+                Log.d("stufferian", "winner = $winner")
+                if(winner != -1){
+                    val options = snapshot.child("options").getValue(object: GenericTypeIndicator<List<String>>(){})?:listOf()
+                    requireActivity().supportFragmentManager.beginTransaction().replace(R.id.FrameLayout,
+                        ResultFragment.newInstance(options[winner])).commit()
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -55,7 +62,7 @@ class WaitingRoomFragment : Fragment() {
         var timePassed = 1
 
         fun secondsToClock(timePassed: Int):String{
-            return "${Math.floor((timePassed/60).toDouble()).toInt()}:${(timePassed%60).toString().padStart(2,'0')}"
+            return "${floor((timePassed / 60).toDouble()).toInt()}:${(timePassed%60).toString().padStart(2,'0')}"
         }
         CoroutineScope(Dispatchers.Main).launch {
             while(true){

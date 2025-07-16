@@ -17,7 +17,7 @@ class PollViewModel: ViewModel() {
     val ref = database.getReference("polls")
 
 
-    public fun startLuaRunner(id: String , script: String){
+    fun startLuaRunner(id: String , script: String){
         val pollRef = ref.child("poll_$id")
 
         pollRef.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -45,7 +45,9 @@ class PollViewModel: ViewModel() {
     private fun handleSnapshot(snapshot: DataSnapshot, script: String) {
         val numVotes = snapshot.child("numOfVotesCast").getValue(Int::class.java) ?: 0
         val participantNum = snapshot.child("participants").getValue(Int::class.java) ?: 0
-        if (numVotes != participantNum) return
+        val currentWinner = snapshot.child("winner").getValue(Int::class.java)
+
+        if (numVotes != participantNum || currentWinner != -1) return
 
         val ballotType = snapshot.child("type").getValue(String::class.java)
         val votesMap: Map<*, *> = try{ when (ballotType) {
@@ -72,6 +74,6 @@ class PollViewModel: ViewModel() {
             GenericTypeIndicator<List<String>>() {})
 
         val winner = luaRunner.runLua(script, votesMap, options)
-        Log.d("Poll winner", "winner = $winner")
+        snapshot.ref.child("winner").setValue(winner-1)
     }
 }

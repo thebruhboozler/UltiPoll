@@ -23,7 +23,7 @@ class SplashFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.setUpPollBtn.setOnClickListener{
             val bundle = Bundle()
-            bundle.putString("id", "f839e79bd054717ac890d65352f66fc847825358")
+            bundle.putString("id", "387a072a77604a0b0175fd48b10b444b4561ab6e")
 
             val transition = parentFragmentManager.beginTransaction()
             val pollSetUpFragment = PollSetUpFragment()
