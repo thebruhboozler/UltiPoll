@@ -189,7 +189,7 @@ class PollSetUpFragment : Fragment() {
                 ref.child(newKey).setValue(poll);
             }
             vm.startLuaRunner(id,script)
-            IdDisplayFragment.newInstance(id).show(parentFragmentManager, "IdDisplay")
+            IdDisplayFragment.newInstance(id,participate).show(parentFragmentManager, "IdDisplay")
 
         }
     }

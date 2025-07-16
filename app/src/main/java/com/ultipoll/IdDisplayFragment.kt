@@ -13,9 +13,11 @@ class IdDisplayFragment : BottomSheetDialogFragment() {
     private lateinit var binding: FragmentIdDisplayBinding
 
     private lateinit var pollId:String
+    private  var participate: Boolean =false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pollId = requireArguments().getString(ARG_ID).toString()
+        participate = requireArguments().getBoolean(ARG_PARTICIPATE)
     }
 
     override fun onCreateView(
@@ -32,18 +34,25 @@ class IdDisplayFragment : BottomSheetDialogFragment() {
         binding.idDisplay.text = pollId;
 
         binding.confirm.setOnClickListener {
-            parentFragmentManager.beginTransaction().replace(R.id.FrameLayout,BoothFragment.newInstance(pollId)).commit()
+            if(participate)
+                parentFragmentManager.beginTransaction().replace(R.id.FrameLayout,
+                    BoothFragment.newInstance(pollId)).commit()
+            else
+                parentFragmentManager.beginTransaction().replace(R.id.FrameLayout,
+                    WaitingRoomFragment.newInstance(pollId)).commit()
             dismiss()
         }
     }
 
     companion object {
         private const val ARG_ID = "arg_id"
+        private const val ARG_PARTICIPATE = "participate"
 
-        fun newInstance(id: String): IdDisplayFragment {
+        fun newInstance(id: String , participate: Boolean): IdDisplayFragment {
             return IdDisplayFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_ID, id)
+                    putBoolean(ARG_PARTICIPATE ,participate)
                 }
             }
         }
