@@ -1,6 +1,7 @@
----Title: Instant Runoff
+---Title: Iterated Plurality Runoff
 ---Ballot_Type: Ranked
----Description: each voter ranks the candidates from most preferred to least preferred. Each round the votes are assigned to the candidates based on the number of times they were most preferred, the least most preferred candidate gets elminated and their votes are reassigned to the second most preferred candidate in their respective ballots. this process repeats until a single candidate holds the majority of the votes
+---Description: each voter ranks the candidates from most preferred to least preferred. in the first round each candidate gets the number of votes according to how many times they were ranked most prefered. if the winning candidate doesn't achieve a majority vicotry, all the other most preferred candidates are removed from their ballots and the votes go to the second most preferred candidate. this process repeats until a majority winner is found
+
 
 local winningCandidate=""
 local maxVotes = 0
@@ -19,16 +20,6 @@ local function addVote(candidate)
 			entry.numOfVotes = entry.numOfVotes + 1
 		end
 	end
-end
-
-local function findLeastPreferredCandidate()
-	local min = electionTracker[1]
-	for _, entry in ipairs(electionTracker) do
-		if entry.numOfVotes < min.numOfVotes then
-			min = entry
-		end
-	end
-	return min
 end
 
 local function keyOf(tbl, value)
@@ -58,9 +49,8 @@ do
 	if maxVotes >= threshold then
 		return keyOf(candidates, winningCandidate)
 	else
-		local leastPreferred = findLeastPreferredCandidate()
 		for _, vote in ipairs(votes) do
-			if vote[1].candidate == leastPreferred.candidate then
+			if vote[1] ~= winningCandidate then
 				table.remove(vote,1)
 			end
 		end
